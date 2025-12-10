@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"github.com/Prabesh-Sharma/suckless-client/handler"
+)
 
 func main() {
-	fmt.Println("init")
+	handler.FileHandler()
 }
