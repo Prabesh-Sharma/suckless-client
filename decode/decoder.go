@@ -7,13 +7,16 @@ import (
 )
 
 type BencodeParser struct {
-	data   []byte
-	offset int
+	data      []byte
+	offset    int
+	InfoStart int
+	InfoEnd   int
+	depth     int
 }
 
 // NewBencodeParser creates a BencodeParser instance
 func NewBencodeParser(data []byte) *BencodeParser {
-	return &BencodeParser{data: data, offset: 0}
+	return &BencodeParser{data: data, offset: 0, InfoStart: 0, InfoEnd: 0, depth: 0}
 }
 
 // Decoder is recursive descent parser for bencoded files

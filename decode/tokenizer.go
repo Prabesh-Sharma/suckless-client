@@ -7,29 +7,45 @@ import (
 )
 
 const (
-	S = byte('s')
 	L = byte('l')
 	D = byte('d')
 	I = byte('i')
 	E = byte('e')
 )
 
+func (p *BencodeParser) decrDepth() {
+	p.depth--
+}
+
 func (p *BencodeParser) decodeDict() (any, error) {
 	if p.data[p.offset] != D {
 		return nil, fmt.Errorf("malformed file doesnot start with dict")
 	}
 	p.offset += 1 // consume 'd'
+	p.depth += 1
+	defer p.decrDepth()
+
 	dict := make(map[string]any)
 	for p.data[p.offset] != E {
 		key, err := p.decodeString()
 		if err != nil {
 			return nil, err
 		}
+
+		// only record the top level infoOffset in the parser
+		if key == "info" && p.depth == 1 {
+			p.InfoStart = p.offset
+		}
+
 		val, err := p.Decoder()
 		if err != nil {
 			return nil, err
 		}
 		dict[key] = val
+
+		if key == "info" && p.depth == 1 {
+			p.InfoEnd = p.offset
+		}
 	}
 	p.offset += 1 // consume 'e'
 	return dict, nil
